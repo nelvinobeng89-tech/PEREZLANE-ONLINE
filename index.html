@@ -212,6 +212,9 @@
                     </div>
                     <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
                         <button onclick="resetForm()" class="min-h-[44px] text-sm font-medium text-gray-400 hover:text-white px-5 py-2 rounded-lg hover:bg-white/5 transition-colors flex-1 md:flex-none">Reset</button>
+                        <button type="button" onclick="changeAdminPin()" class="min-h-[44px] text-sm bg-white/5 text-gray-300 px-6 py-2.5 rounded-xl border border-white/10 hover:bg-white/10 hover:text-white transition-all font-semibold flex-1 md:flex-none flex items-center justify-center gap-2">
+                            <i data-lucide="key" class="w-4 h-4"></i> Change PIN
+                        </button>
                         <button onclick="lockManagement()" class="min-h-[44px] text-sm bg-red-500/10 text-red-500 px-6 py-2.5 rounded-xl border border-red-500/20 hover:bg-red-500 hover:text-white transition-all font-semibold flex-1 md:flex-none flex items-center justify-center gap-2">
                             <i data-lucide="lock" class="w-4 h-4"></i> Lock Panel
                         </button>
@@ -422,7 +425,8 @@
         </div>
         
         <!-- Cart Items Container (Scrollable) -->
-        <div id="cart-items" class="flex-grow overflow-y-auto p-4 md:p-6 flex flex-col gap-4 custom-scrollbar touch-pan-x min-h-0">
+        <!-- FIX: Changed from flex-grow to flex-1 to strictly respect container height -->
+        <div id="cart-items" class="flex-1 overflow-y-auto p-4 md:p-6 flex flex-col gap-4 custom-scrollbar touch-pan-x min-h-0">
             <!-- JavaScript populates items here -->
         </div>
         
@@ -449,7 +453,6 @@
     </div>
 
     <!-- Custom Alert/Prompt Modal -->
-    <!-- CHANGED: z-[100] to z-[120] to ensure modal overlays the cart drawer (z-[101]) -->
     <div id="custom-modal" class="hidden fixed inset-0 z-[120] flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeModal()"></div>
         <!-- Modal constrained with max-height to ensure scrollability on landscape phones -->
@@ -479,7 +482,8 @@
     <div id="toast-container" class="fixed bottom-24 right-4 md:right-8 z-[110] flex flex-col gap-3 pointer-events-none"></div>
 
     <script>
-        const PIN_KEY = "1234"; 
+        // Update to allow dynamically saving PIN to local storage
+        let PIN_KEY = localStorage.getItem('perez_admin_pin') || "1234"; 
 
         // --- THEME MANAGEMENT ---
         function initTheme() {
@@ -888,6 +892,19 @@
                 }
             });
         }
+        
+        // --- ADDED DYNAMIC PIN CHANGE ---
+        function changeAdminPin() {
+            const newPin = prompt("Enter your new Admin PIN:");
+            if (newPin && newPin.trim().length > 0) {
+                PIN_KEY = newPin.trim();
+                localStorage.setItem('perez_admin_pin', PIN_KEY);
+                showToast("Admin PIN updated successfully!", "success");
+            } else {
+                showToast("PIN change cancelled.", "info");
+            }
+        }
+        
         function lockManagement() { document.body.classList.remove('mgmt-active'); resetForm(); showToast("Admin Panel Locked", "info"); }
 
         document.getElementById('product-form').addEventListener('submit', (e) => {
@@ -963,5 +980,3 @@
     </script>
 </body>
 </html>
-
-```
