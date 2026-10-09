@@ -119,7 +119,7 @@
         body.light-mode .text-white { color: #111827 !important; }
         body.light-mode .border-white\/10 { border-color: rgba(0,0,0,0.1) !important; }
         body.light-mode .bg-gray-900\/50 { background-color: rgba(0,0,0,0.04) !important; }
-        body.light-mode input, body.light-mode select { 
+        body.light-mode input, body.light-mode select, body.light-mode textarea { 
             background-color: #f9fafb !important; 
             color: #111827 !important; 
             border-color: #d1d5db !important;
@@ -142,7 +142,7 @@
         }
 
         /* Focus outlines for Accessibility (Keyboard Navigation) */
-        button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible {
+        button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible {
             outline: 2px solid var(--brand-cyan);
             outline-offset: 2px;
         }
@@ -430,13 +430,24 @@
             <!-- JavaScript populates items here -->
         </div>
         
-        <!-- Customer Delivery Details -->
-        <div class="px-4 md:px-6 py-4 border-t border-white/5 bg-gray-900 z-10 shrink-0 flex flex-col gap-3 relative">
-            <h3 class="text-[11px] font-bold text-cyan-400 uppercase tracking-wider">Delivery Details</h3>
-            <input type="text" id="customer-name" placeholder="Full Name *" required class="w-full bg-black border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-cyan-400 transition-colors">
-            <input type="text" id="customer-location" placeholder="Location *" required class="w-full bg-black border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-cyan-400 transition-colors">
-            <input type="text" id="customer-hostel" placeholder="Hostel Name (Students Only)" class="w-full bg-black border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-cyan-400 transition-colors">
-            <textarea id="customer-notes" placeholder="Delivery Notes" rows="2" class="w-full bg-black border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-cyan-400 transition-colors resize-none"></textarea>
+        <!-- Customer Delivery Details (Collapsible) -->
+        <div class="px-4 md:px-6 py-4 border-t border-white/5 bg-gray-900 z-10 shrink-0 flex flex-col relative transition-all">
+            <button type="button" onclick="toggleDeliveryInfo()" class="flex items-center justify-between w-full text-left group" aria-expanded="false">
+                <div class="flex items-center gap-2 text-[12px] font-bold text-cyan-400 uppercase tracking-wider">
+                    <i data-lucide="truck" class="w-4 h-4"></i>
+                    <span id="delivery-toggle-text">Add Delivery Info</span>
+                </div>
+                <div class="bg-cyan-400/10 p-1 rounded">
+                   <i data-lucide="chevron-down" id="delivery-toggle-icon" class="w-4 h-4 text-cyan-400 transition-transform duration-300"></i>
+                </div>
+            </button>
+            
+            <div id="delivery-info-form" class="hidden flex-col gap-3 mt-4">
+                <input type="text" id="customer-name" placeholder="Full Name *" required class="w-full bg-black border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-cyan-400 transition-colors">
+                <input type="text" id="customer-location" placeholder="Location *" required class="w-full bg-black border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-cyan-400 transition-colors">
+                <input type="text" id="customer-hostel" placeholder="Hostel Name (Students Only)" class="w-full bg-black border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-cyan-400 transition-colors">
+                <textarea id="customer-notes" placeholder="Delivery Notes" rows="2" class="w-full bg-black border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-cyan-400 transition-colors resize-none"></textarea>
+            </div>
         </div>
 
         <!-- Drawer Footer / Checkout -->
@@ -749,6 +760,26 @@
             totalEl.innerText = `GH₵ ${formatPrice(grandTotal)}`; lucide.createIcons();
         }
 
+        // --- NEW: TOGGLE DELIVERY INFO ---
+        function toggleDeliveryInfo() {
+            const form = document.getElementById('delivery-info-form');
+            const icon = document.getElementById('delivery-toggle-icon');
+            const text = document.getElementById('delivery-toggle-text');
+            const isHidden = form.classList.contains('hidden');
+
+            if (isHidden) {
+                form.classList.remove('hidden');
+                form.classList.add('flex');
+                icon.style.transform = 'rotate(180deg)';
+                text.innerText = 'Close Delivery Info';
+            } else {
+                form.classList.add('hidden');
+                form.classList.remove('flex');
+                icon.style.transform = 'rotate(0deg)';
+                text.innerText = 'Add Delivery Info';
+            }
+        }
+
         function completeOrder() {
             if (cart.length === 0) { showToast("Please add items to your cart first.", "info"); return; }
 
@@ -758,6 +789,11 @@
             const customerNotes = document.getElementById('customer-notes').value.trim();
 
             if (!customerName || !customerLocation) {
+                // If form is closed and missing required fields, open it automatically
+                const form = document.getElementById('delivery-info-form');
+                if (form.classList.contains('hidden')) {
+                    toggleDeliveryInfo();
+                }
                 showToast("Please provide your name and location for delivery.", "info");
                 return;
             }
@@ -790,6 +826,11 @@
                     document.getElementById('customer-location').value = '';
                     document.getElementById('customer-hostel').value = '';
                     document.getElementById('customer-notes').value = '';
+                    
+                    // Close the form for the next time the cart is opened
+                    const form = document.getElementById('delivery-info-form');
+                    if (!form.classList.contains('hidden')) toggleDeliveryInfo();
+
                     showToast("Order receipt ready to send!", "success");
                 }
             });
