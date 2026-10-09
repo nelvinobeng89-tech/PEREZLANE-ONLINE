@@ -1,3 +1,9 @@
+To fix the issue where the cart items are bleeding under the delivery section when the screen is small, we need to add the `min-h-0` utility to your scrollable `cart-items` flex container. By default, flex children refuse to shrink smaller than their content, which forces them to overflow. `min-h-0` explicitly tells the browser to constrain the container's height to the available space and enable the `overflow-y-auto` correctly.
+
+I've also updated the delivery details background from `bg-gray-900/50` (transparent) to a solid `bg-gray-900 relative z-10` to ensure a completely clean overlay if scroll-bouncing occurs.
+
+Here is the corrected code:
+
 ```html
 <!DOCTYPE html>
 <html lang="en">
@@ -423,12 +429,12 @@
         </div>
         
         <!-- Cart Items Container (Scrollable) -->
-        <div id="cart-items" class="flex-grow overflow-y-auto p-4 md:p-6 flex flex-col gap-4 custom-scrollbar touch-pan-x">
+        <div id="cart-items" class="flex-grow overflow-y-auto p-4 md:p-6 flex flex-col gap-4 custom-scrollbar touch-pan-x min-h-0">
             <!-- JavaScript populates items here -->
         </div>
         
         <!-- Customer Delivery Details -->
-        <div class="px-4 md:px-6 py-4 border-t border-white/5 bg-gray-900/50 shrink-0 flex flex-col gap-3">
+        <div class="px-4 md:px-6 py-4 border-t border-white/5 bg-gray-900 z-10 shrink-0 flex flex-col gap-3 relative">
             <h3 class="text-[11px] font-bold text-cyan-400 uppercase tracking-wider">Delivery Details</h3>
             <input type="text" id="customer-name" placeholder="Full Name *" required class="w-full bg-black border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-cyan-400 transition-colors">
             <input type="text" id="customer-location" placeholder="Location *" required class="w-full bg-black border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-cyan-400 transition-colors">
