@@ -1,10 +1,3 @@
-To fix the issue where the cart items are bleeding under the delivery section when the screen is small, we need to add the `min-h-0` utility to your scrollable `cart-items` flex container. By default, flex children refuse to shrink smaller than their content, which forces them to overflow. `min-h-0` explicitly tells the browser to constrain the container's height to the available space and enable the `overflow-y-auto` correctly.
-
-I've also updated the delivery details background from `bg-gray-900/50` (transparent) to a solid `bg-gray-900 relative z-10` to ensure a completely clean overlay if scroll-bouncing occurs.
-
-Here is the corrected code:
-
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
